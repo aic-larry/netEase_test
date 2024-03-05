@@ -35,7 +35,7 @@
         </div>
         <div class="mb-20">参与用户规则：</div>
         <div>
-            <ruleEditor :ruleJson="ruleJson" :origin="ruleJson" @removeCondition="removeCondition"></ruleEditor>
+            <ruleEditor :ruleJson="ruleJson" :origin="ruleJson" ></ruleEditor>
         </div>
 
         <div class="mb-20">奖品列表：</div>
@@ -64,8 +64,8 @@
             </div>
         </div>
 
-        <el-dialog title="更新奖品" :visible.sync="dialogVisible" width="80%" :before-close="handleClose">
-            <el-table :data="awardList" style="width: 100%" @selection-change="handleSelectionChange">
+        <el-dialog title="更新奖品" :visible.sync="dialogVisible" width="80%" :before-close="cancelSelected">
+            <el-table :data="awardList" style="width: 100%" @selection-change="handleSelectionChange" ref="awardTable">
                 <el-table-column type="selection" width="55">
                 </el-table-column>
                 <el-table-column prop="awardName" label="奖品名称">
@@ -96,7 +96,7 @@ export default {
     data() {
         return {
             info: {},
-            dialogVisible:false,
+            dialogVisible: false,
             ruleJson: {
                 "id": "1",
                 "type": "group",  // 条件组合类型，可以是 "group" 或 "condition"
@@ -142,8 +142,8 @@ export default {
                 { awardName: '德芙', store: 10, rate: 40 },
                 { awardName: '玫瑰', store: 10, rate: 40 },
             ],
-            awardListSelected:[],
-            selectedRow:[],
+            awardListSelected: [],
+            selectedRow: [],
         }
     },
     created() {
@@ -169,32 +169,31 @@ export default {
         },
         openStore() {
             this.dialogVisible = true
-            this.selectedRow = this.awardListSelected
+            console.log(this.awardListSelected)
+            if (this.awardListSelected) {
+                this.awardListSelected.forEach(row => {
+                    this.$refs.awardTable.toggleRowSelection(row);
+                })
+            }
         },
         deleteSelect() {
 
         },
-        removeCondition(e) {
-            console.log('ruleJSON:', this.ruleJson)
-            console.log('item:', e)
-            // this.ruleJson.conditions.splice(this.ruleJson.conditions.findIndex(i=>i.variable===e.variable),1)
-        },
-        updateAwardListSelected(){
+        updateAwardListSelected() {
             this.dialogVisible = false
             this.awardListSelected = this.selectedRow
         },
-        cancelSelected(){
+        cancelSelected() {
             this.dialogVisible = false
-            this.selectedRow = this.awardListSelected
+            this.$refs.awardTable.clearSelection();
         },
-        handleSelectionChange(row){
+        handleSelectionChange(row) {
             this.selectedRow = row
         },
-        handleClose(){},
-        removeItem(row){
-            this.awardListSelected.splice(this.awardListSelected.findIndex(i=>i.awardName === row.awardName),1)
+        removeItem(row) {
+            this.awardListSelected.splice(this.awardListSelected.findIndex(i => i.awardName === row.awardName), 1)
         }
-    }   
+    }
 }
 </script>
 
